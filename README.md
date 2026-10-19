@@ -123,7 +123,7 @@ npm install --omit=optional        # 跳过 sharp
 npm i sharp                        # 需要图片模块时再单独装
 ```
 
-不装 sharp 不影响其余 37 个工具。
+不装 sharp 不影响其余 38 个工具。
 
 ---
 
