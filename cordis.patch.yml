@@ -1,0 +1,43 @@
+# apk-devkit bundle patch
+#
+# 随包发布，由 package.json 的 dsh.bundle.patch 指向本文件。
+# DSH 1.13.0+ 安装时会自动把包名写入 profile 的 dsh.profile.bundles，
+# 本 patch 随即生效，无需再手写注册行。
+#
+# ⚠️ 不要在自己的 $DSH_HOME/profiles/<name>/cordis.patch.yml
+#    或机器级 $DSH_HOME/cordis.patch.yml 里再 insert 同一 id，
+#    两层声明同一 id 会导致 loader 组合失败。
+#
+# config 是整行替换（不是深合并），未给出的字段走 schema 默认值。
+# workspace 留空时回落到环境变量 APK_WORKSPACE 或 <cwd>/workspace。
+#
+# ⚠️⚠️ name 必须写 `apk-devkit/plugin`，**不能**写 `apk-devkit` ⚠️⚠️
+#
+# 这是真机装载时踩到的**致命 bug**（Windows / Linux 都会炸，与平台无关）：
+#
+#   name: apk-devkit        → cordis 按 Node 解析规则读 package.json，
+#                             落到 `main: orchestrator.js`，
+#                             而它导出的是 **Session 类**（不是插件入口）。
+#                             cordis 判定是 constructor 就 `new Session(ctx, config)`，
+#                             于是 `path.resolve(Context)` 直接抛：
+#       TypeError [ERR_INVALID_ARG_TYPE]:
+#         The "paths[0]" argument must be of type string.
+#         Received an instance of Context
+#         at new Session (orchestrator.js)
+#                             → 插件第一秒就死，且报错完全指不到根因。
+#
+#   name: apk-devkit/plugin → 命中 package.json 的
+#                             `exports: { "./plugin": "./plugin.mjs" }`，
+#                             加载 ESM 插件入口，导出 apply/name/inject → 正常。
+#
+# 换句话说：**这里的 name 是模块说明符（module specifier），不是包名的装饰**。
+# 它必须与 package.json#exports 里的某个子路径精确对应。
+#
+# 同理，将来若发布为 `@<scope>/apk-devkit`，这里要写成
+# `@<scope>/apk-devkit/plugin` —— 只改包名而漏掉 /plugin 后缀，会原样复现该崩溃。
+
+- insert:
+  - id: apk-devkit
+    name: apk-devkit/plugin
+    config:
+      workspace: ""
