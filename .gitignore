@@ -1,0 +1,24 @@
+# 依赖
+node_modules/
+
+# 工作区（运行时产物，不进仓库；保留目录占位）
+workspace/*
+!workspace/.gitkeep
+
+# 外部工具二进制：体积大、各有许可，不进仓库
+# 只保留目录占位（.gitkeep）与放置说明（tools/README.md）
+tools/windows/*
+!tools/windows/.gitkeep
+
+# 日志
+*.log
+npm-debug.log*
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 打包产物
+*.tgz
