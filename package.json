@@ -1,0 +1,69 @@
+{
+  "name": "apk-devkit",
+  "version": "0.1.0",
+  "description": "APK 开发调试工具集：解包、回编、签名、DEX、文件、压缩包、图片、哈希",
+  "main": "orchestrator.js",
+  "bin": { "apk-devkit-mcp": "server.js" },
+  "type": "commonjs",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PKPK/apk-devkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PKPK/apk-devkit/issues"
+  },
+  "homepage": "https://github.com/PKPK/apk-devkit#readme",
+  "os": ["win32"],
+  "cpu": ["x64", "arm64"],
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=0.1.0-rc.6"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": { "optional": true }
+  },
+  "exports": {
+    ".": "./orchestrator.js",
+    "./plugin": "./plugin.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "/cordis.patch.yml"
+    }
+  },
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "apk",
+    "apktool",
+    "smali"
+  ],
+  "files": [
+    "orchestrator.js",
+    "server.js",
+    "plugin.mjs",
+    "cordis.patch.yml",
+    "example.js",
+    "lib/",
+    "modules/",
+    "tools/",
+    "README.md",
+    "LICENSE",
+    "NOTICE",
+    "PUBLISHING.md"
+  ],
+  "engines": { "node": ">=18.0.0" },
+  "dependencies": {
+    "diff": "^5.2.0",
+    "adm-zip": "^0.5.16",
+    "tree-kill": "^1.2.2"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.33.5"
+  },
+  "scripts": {
+    "mcp": "node server.js",
+    "list-tools": "node -e \"const S=require('./orchestrator');console.log(JSON.stringify(new S('./workspace').load('./modules').manifest(),null,2))\"",
+    "count-tools": "node -e \"const S=require('./orchestrator');console.log(new S('./workspace').load('./modules').manifest().length)\""
+  }
+}
