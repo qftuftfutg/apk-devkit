@@ -34,7 +34,7 @@ dsh plugin --profile web add apk-devkit
 ### 方式 C：GitHub 源
 
 ```bash
-dsh plugin --profile web add github:PKPK/apk-devkit
+dsh plugin --profile web add github:qftuftfutg/apk-devkit
 ```
 
 ### 验证是否挂载成功
