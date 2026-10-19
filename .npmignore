@@ -1,0 +1,25 @@
+# npm 发布时排除外部工具二进制
+# 理由：体积大（几十 MB）、各有许可（Apache-2.0 / BSD / AOSP），
+#       不适合随本包分发；用户按 tools/README.md 自行准备。
+#
+# 注：package.json 的 files 字段已白名单了源码，
+#     本文件只做二次收口，防止用户本地放了 jar 后被误打包。
+tools/windows/*.jar
+tools/windows/*.exe
+tools/windows/*.bat
+tools/windows/*.cmd
+tools/windows/*.dll
+
+# 工作区产物
+workspace/*
+
+# 本地测试用的依赖副本（沙盒 npm 为全局模式时装的，不应随包发布）
+lib/node_modules/**
+lib/node_modules/**/*
+
+# 开发残留
+.gitignore
+.vscode/
+.idea/
+*.log
+*.tgz
