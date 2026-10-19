@@ -8,12 +8,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PKPK/apk-devkit.git"
+    "url": "git+https://github.com/qftuftfutg/apk-devkit.git"
   },
   "bugs": {
-    "url": "https://github.com/PKPK/apk-devkit/issues"
+    "url": "https://github.com/qftuftfutg/apk-devkit/issues"
   },
-  "homepage": "https://github.com/PKPK/apk-devkit#readme",
+  "homepage": "https://github.com/qftuftfutg/apk-devkit#readme",
   "os": ["win32"],
   "cpu": ["x64", "arm64"],
   "peerDependencies": {
