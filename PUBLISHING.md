@@ -270,7 +270,7 @@ npm pack --dry-run
 
 ```bat
 git init && git add . && git commit -m "init"
-git remote add origin https://github.com/PKPK/apk-devkit.git
+git remote add origin https://github.com/qftuftfutg/apk-devkit.git
 git push -u origin main
 ```
 
@@ -293,7 +293,7 @@ git tag v0.1.0 && git push origin v0.1.0
 
 ```bat
 dsh plugin --profile web add apk-devkit
-dsh plugin --profile web add github:PKPK/apk-devkit
+dsh plugin --profile web add github:qftuftfutg/apk-devkit
 ```
 
 ---
@@ -324,7 +324,7 @@ DSH 的 `dsh-market` 会**解析 README 里的安装命令**自动执行。
 ```bat
 dsh plugin --profile web add ./apk-devkit
 dsh plugin --profile web add apk-devkit
-dsh plugin --profile web add github:PKPK/apk-devkit
+dsh plugin --profile web add github:qftuftfutg/apk-devkit
 ```
 
 用户只需在 DSH 会话里说一句：
