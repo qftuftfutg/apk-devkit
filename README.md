@@ -48,10 +48,10 @@ dsh --profile web
 - 启动日志正常应包含一行
   `[apk-devkit] loaded; registering N tools; workspace=...`
   —— 这是插件正常的加载日志，**不是报错**。
-  `N` 应为 **37**。
+  `N` 应为 **38**。
   若同时出现 `[apk-devkit] 模块加载失败 X: ...` 或
   `[apk-devkit] N 个模块未加载`，说明对应模块有问题（多为依赖缺失），
-  工具数会少于 37 —— 这些行是**正常的故障排查信息**，不是多余的报错
+  工具数会少于 38 —— 这些行是**正常的故障排查信息**，不是多余的报错
 - 会话中 AI 能列出 `apk_decode`、`file_read`、`apkedit_decode` 等工具
 
 **若工具不可见**，按顺序排查：
@@ -123,7 +123,7 @@ npm install --omit=optional        # 跳过 sharp
 npm i sharp                        # 需要图片模块时再单独装
 ```
 
-不装 sharp 不影响其余 38 个工具。
+不装 sharp 不影响其余 35 个工具。
 
 ---
 
