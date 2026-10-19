@@ -1,0 +1,62 @@
+apk-devkit
+Copyright 2026 apk-devkit contributors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+---------------------------------------------------------------------------
+第三方开源组件
+---------------------------------------------------------------------------
+
+本项目的 LICENSE 为 MIT（自研代码部分：orchestrator.js / server.js /
+plugin.mjs / lib/ / modules/）。以下第三方组件**不在本项目源码内**，
+本项目仅通过子进程调用（`lib/platform.js` 的 `resolve()` + `lib/runner.js`
+的 `exec()`）其官方发布的独立可执行文件或 jar，未复制、未翻译、未修改
+其任何源代码，因此不适用其许可证的源码级义务；此处列出以示说明与致谢。
+
+  · REAndroid/APKEditor — https://github.com/REAndroid/APKEditor
+    Apache License 2.0
+    用途：APK 二进制资源（resources.arsc）解码、回编、分割包合并、
+          混淆资源名还原。不依赖 aapt/aapt2。
+    集成方式：外部进程调用 apkeditor.jar（modules/apkedit.js）
+
+  · REAndroid/ARSCLib — https://github.com/REAndroid/ARSCLib
+    Apache License 2.0
+    用途：APKEditor 的底层资源读写库，随 APKEditor 一同分发，
+          本项目不直接调用。
+
+  · iBotPeaches/Apktool — https://github.com/iBotPeaches/Apktool
+    Apache License 2.0
+    用途：APK 解包为 smali / 资源，以及回编。
+    集成方式：外部进程调用（modules/apk.js）
+
+  · JesusFreke/smali（baksmali / smali）— https://github.com/JesusFreke/smali
+    BSD-3-Clause
+    用途：DEX ↔ smali 反汇编与组装。
+    集成方式：外部进程调用（modules/dex.js）
+
+  · Android Open Source Project — apksigner / zipalign / aapt2 / d8
+    Apache License 2.0
+    用途：APK 签名、对齐、信息读取、JAR→DEX。
+    集成方式：外部进程调用（modules/sign.js、modules/apk.js、modules/dex.js）
+
+---------------------------------------------------------------------------
+说明
+---------------------------------------------------------------------------
+
+· 以上工具**不随本包分发**，需用户自行准备并放入 tools/<平台>/ 目录，
+  或设置环境变量 APK_TOOLS_DIR 指向其所在目录。详见 README 第二节。
+
+· 本项目自身源码不衍生自上述任何项目，不含其任何代码片段或翻译版本。
+
+· 若你在本项目中分发了上述工具的二进制副本，请一并包含各自的
+  LICENSE 与 NOTICE 文件。
