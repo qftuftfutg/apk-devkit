@@ -2,7 +2,7 @@
 
 **DeepSeek Harness（DSH）插件** —— 让 DSH 里的 AI 用自然语言直接对 APK 做解包、回编、签名、DEX 处理、资源与文件编辑，不用敲命令行。
 
-它本身不实现任何逆向算法，是一个**编排层**：把已有的开源命令行工具（`apktool` / `aapt2` / `apksigner` / `zipalign` / `baksmali` / `smali` / `d8` / `APKEditor`）包装成 AI 可调用的工具。
+他把（`apktool` / `aapt2` / `apksigner` / `zipalign` / `baksmali` / `smali` / `d8` / `APKEditor`）包装成 AI 可调用的工具。
 
 > ⚠️ **平台支持：仅 Windows 10/11（64 位）。**
 > Linux / macOS / Termux **不在支持范围，也无法安装** ——
