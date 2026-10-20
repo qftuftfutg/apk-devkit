@@ -233,11 +233,11 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 - `apkedit_merge` 的分割包合并：**目录形式可用**；
   XAPK / APKM / APKS 官方 README 声称支持，**尚未实测**
 
-**不提供（设计如此）**
+**暂不提供**
 
 - 可视化编辑器面板、音视频播放、图片预览 —— 需 GUI，命令行工具给不了
 - Linux 脚本 / 任意命令执行 —— 会击穿 workspace 沙箱
-- DEX / RES 混淆对抗 —— 合规红线
+- DEX / RES 混淆对抗
 
 **工程限制**
 
