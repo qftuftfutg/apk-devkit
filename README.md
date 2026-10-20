@@ -327,7 +327,13 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
   同一会话想并行做多件事时请留意。
 
 ---
+## ☕ 支持与赞助
 
+如果你觉得这个项目对你有帮助，欢迎请作者喝杯咖啡，你的支持是我持续更新的最大动力！
+
+👉 **[点击这里前往爱发电支持我](https://afdian.com/a/123xiaole)**
+
+---
 ## 十一、License
 
 MIT — 见 [LICENSE](./LICENSE)
