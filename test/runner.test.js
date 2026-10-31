@@ -74,7 +74,7 @@ test('exec safely invokes a batch file with a spaced argument', async t => {
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const script = path.join(dir, 'batch tool.cmd');
   fs.writeFileSync(script, '@echo off\r\necho %~1\r\n', 'utf8');
-  const result = await exec('"' + script + '"', ['hello world'], {
+  const result = await exec(script, ['hello world'], {
     cwd: dir,
     shell: true,
     timeoutMs: 10000,
