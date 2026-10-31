@@ -112,15 +112,14 @@ apkeditor    二进制资源（ARSC/XML）编辑，不依赖 aapt2
 
 ### 可选
 
-`sharp` —— 图片模块（`img_convert` / `img_resize`）依赖它。Windows 上无预编译包，
-默认跳过安装：
+`sharp` —— 图片模块（`img_convert` / `img_resize`）依赖它。该依赖在 `package.json` 中标为 optional；下面的安装命令主动省略可选依赖，因此默认不安装 sharp。不要把这一点解释成“Windows 没有预编译包”：sharp 官方安装文档列有 Windows x64 预编译包；本项目尚未在所有 Windows 架构上逐一验证。
 
 ```bash
 npm install --omit=optional        # 跳过 sharp
 npm i sharp                        # 需要图片模块时再单独装
 ```
 
-不装 sharp 不影响其余 35 个工具。
+不装 sharp 不影响其余 36 个工具；两个图片工具仍会注册，但调用时会返回明确的 sharp 缺失提示。sharp 0.33.5 的 Node 运行时要求应以其包元数据为准；若使用 Node 18，至少应满足该版本声明的 18.17.0 要求。
 
 ---
 
@@ -129,7 +128,7 @@ npm i sharp                        # 需要图片模块时再单独装
 | 变量 | 默认值 | 说明 |
 |---|---|---|
 | `APK_WORKSPACE` | `./workspace` | 工作区根目录，所有路径操作限定于此 |
-| `APK_TOOLS_DIR` | `./tools` | 外部工具目录 |
+| `APK_TOOLS_DIR` | `./tools/windows` | 外部工具目录；设置后直接使用该目录，不再拼接子目录 |
 | `APK_KS_PASS` | — | 签名 keystore 密码（可选，通常由参数传入） |
 | `APK_KEY_PASS` | — | 签名私钥密码 |
 
