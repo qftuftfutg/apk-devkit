@@ -59,7 +59,8 @@
     "README.md",
     "LICENSE",
     "NOTICE",
-    "PUBLISHING.md"
+    "PUBLISHING.md",
+    "SECURITY_AUDIT.md"
   ],
   "engines": {
     "node": ">=18.0.0"
