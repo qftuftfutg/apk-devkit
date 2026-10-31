@@ -132,7 +132,7 @@ npm i sharp                        # 需要图片模块时再单独装
 | `APK_KS_PASS` | — | 签名 keystore 密码（可选，通常由参数传入） |
 | `APK_KEY_PASS` | — | 签名私钥密码 |
 
-文件路径会先通过 `lib/runner.js#guard` 做基于 `path.resolve()` 的 workspace 路径检查，可拒绝常见 `../` 词法越界；这不是完整操作系统沙箱。当前代码明确不防 symlink/junction 指向 workspace 外部的逃逸，攻击者可控的 workspace 内容不得视为可信。
+文件路径通过 `lib/runner.js#guard` 做词法路径与真实路径双重检查：拒绝 `../` 越界，并解析现存路径祖先以阻止 symlink/junction 指向 workspace 外部。ZIP 解压在写入前及写入前复核目标路径。该机制仍不是完整操作系统沙箱，无法消除检查与使用之间的 TOCTOU 竞态；不要让不可信本地进程同时修改 workspace。
 
 ---
 
@@ -237,7 +237,7 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 **工程限制**
 
 - ZIP 大文件（>100MB）处理有内存压力（`adm-zip` 全量读入）
-- workspace 沙箱**不防符号链接逃逸**：别往 workspace 放来源不明的 symlink
+- 路径检查会拒绝可解析到 workspace 外部的 symlink/junction；但不是 OS 级沙箱，仍存在并发修改造成的 TOCTOU 边界
 - `file_move` 跨盘（C:↔D:）会自动退化为「复制+删除」
 - `file_list` 单次最多返回 5000 条
 
@@ -288,14 +288,14 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 
 ## 十、安全约束
 
-- `lib/runner.js#guard` 提供 workspace 词法路径约束，不等于 OS 级沙箱；symlink/junction 逃逸仍是已知边界
+- `lib/runner.js#guard` 同时检查词法路径和现存路径祖先的真实路径，可拒绝常见 symlink/junction 外逃；仍不等于 OS 级沙箱，TOCTOU 竞态无法仅靠路径检查彻底消除
 - `file_delete` / `file_move` / `file_copy` 拒绝操作 workspace 根目录
 - `file_rename` / `file_batchRename` 拒绝含路径分隔符的改名结果
 - 签名密码经环境变量中转，不出现在进程命令行
-- `server.js` 仅实现白名单方法（initialize / tools/list / tools/call）
+- `server.js` 仅实现白名单方法（initialize / ping / tools/list / tools/call）
 - 子进程并发上限 2，防止 apktool / d8 吃满内存
 
-**已加固项（原 D1 / D2 安全洞，现已修复并实测）**
+**已加固项（自动化测试覆盖的安全边界）**
 
 - `zip_extract` / `zip_add` 会校验压缩包内的条目名。
   含 `../`、绝对路径、盘符（`C:\`）的恶意条目，以及**符号链接条目**
@@ -310,10 +310,9 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 - 签名密码经 `opts.env` 合并注入子进程，**不再写入全局 `process.env`**，
   并发签名互不干扰；命令行仍是 `--ks-pass env:APK_KS_PASS`，密码不出现在 argv。
 
-**仍存在的边界（设计如此，已声明）**
+**仍存在的边界**
 
-- workspace 沙箱**不防符号链接逃逸**：
-  别往 workspace 放来源不明的 symlink / junction。
+- 路径检查不是 OS 级沙箱，无法彻底消除检查与使用之间的 TOCTOU 竞态；不要让不可信本地进程同时修改 workspace。
 - `file_rename` / `file_batchRename` 拒绝含路径分隔符的改名结果，
   但不覆盖 TOCTOU 与外部进程抢先创建的同名文件。
 
