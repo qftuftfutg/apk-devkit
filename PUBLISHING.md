@@ -285,7 +285,7 @@ dsh plugin --profile web add github:qftuftfutg/apk-devkit
 
 ---
 
-## 路径 B：npm（也可被市场与 AI 拉取）
+## 路径 B：npm（标准包管理器安装路径）
 
 ```bat
 npm login
