@@ -1,7 +1,7 @@
 # tools/windows/ — 外部工具存放目录
 
-> **本项目当前仅支持 Windows。** Linux / macOS / Termux 不在支持范围，
-> 在非 Windows 平台上调用任何外部工具会返回 `EPLATFORM` 明确报错。
+> **本项目当前仅面向 Windows 发行。** Linux / macOS / Termux 不在支持范围；
+> `lib/platform.js` 在非 Windows 上调用外部工具会返回 `EPLATFORM`。文档验证以 Windows x64 为主；Windows ARM64 虽在 package metadata 中允许，但外部工具的原生 ARM64 兼容性未逐一验证。
 
 本目录**只包含占位文件**，所有外部工具需你自行准备
 （jar / exe 体积大且各有许可，不适合放进 git 仓库）。
