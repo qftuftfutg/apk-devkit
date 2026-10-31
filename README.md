@@ -4,11 +4,8 @@
 
 他把（`apktool` / `aapt2` / `apksigner` / `zipalign` / `baksmali` / `smali` / `d8` / `APKEditor`）包装成 AI 可调用的工具。
 
-> ⚠️ **平台支持：仅 Windows 10/11（64 位）。**
-> Linux / macOS / Termux **不在支持范围，也无法安装** ——
-> `package.json` 声明了 `os: ["win32"]`、`cpu: ["x64", "arm64"]`，
-> 在其他平台上 `npm install` 会直接拒绝（EBADPLATFORM）。
-> 32 位 Windows（ia32）同样不支持。
+> ⚠️ **平台支持边界：当前仅声明并面向 Windows（64 位）发行。**
+> 本仓库的工具解析器在非 Windows 平台会主动返回 `EPLATFORM`，因此 Linux / macOS / Termux 不属于受支持运行平台。`package.json` 声明 `os: ["win32"]`、`cpu: ["x64", "arm64"]`；本项目文档中的验证记录以 Windows x64 为主，Windows ARM64 虽被元数据允许，但未据此证明所有外部工具均原生兼容。32 位 Windows（ia32）不支持。
 
 ---
 
@@ -136,8 +133,7 @@ npm i sharp                        # 需要图片模块时再单独装
 | `APK_KS_PASS` | — | 签名 keystore 密码（可选，通常由参数传入） |
 | `APK_KEY_PASS` | — | 签名私钥密码 |
 
-所有文件操作的路径都会被 `lib/runner.js#guard` 强制限制在 workspace 内，
-传入 `../` 等越界路径会被拒绝。
+文件路径会先通过 `lib/runner.js#guard` 做基于 `path.resolve()` 的 workspace 路径检查，可拒绝常见 `../` 词法越界；这不是完整操作系统沙箱。当前代码明确不防 symlink/junction 指向 workspace 外部的逃逸，攻击者可控的 workspace 内容不得视为可信。
 
 ---
 
@@ -252,14 +248,16 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 
 ## 八、合规声明
 
-本工具仅面向开发者对**自身拥有完整著作权**的 Android APK 项目进行调试、
+本工具面向开发者对**自己拥有权利或已获得明确授权**的 Android APK 项目进行调试、
 二次打包、签名与资源编辑。
 
 **禁止用途**
 
-1. 破解第三方应用、去除或绕过签名校验、绕过授权许可；
-2. 规避软件著作权保护技术措施；
-3. 违反《计算机软件保护条例》第二十四条、《刑法》第二百八十五条相关条款的行为。
+1. 未经授权破解、篡改或再分发第三方应用；
+2. 未经授权移除或规避技术保护措施、签名/许可/账号校验；
+3. 将工具用于侵犯他人知识产权、破坏计算机信息系统或其他违法行为。
+
+具体行为是否违法取决于授权范围、技术措施性质、行为目的和实际影响；本项目说明不是法律意见，也不判断某一具体行为必然适用某一法条。
 
 > ⚠️ **开源工具 ≠ 可以处理他人的 APK。**
 > 本工具调用的底层组件（APKEditor、Apktool、smali 等）均为 Apache-2.0 /
@@ -291,7 +289,7 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 
 ## 十、安全约束
 
-- `lib/runner.js#guard` 强制 workspace 路径沙箱，请勿移除
+- `lib/runner.js#guard` 提供 workspace 词法路径约束，不等于 OS 级沙箱；symlink/junction 逃逸仍是已知边界
 - `file_delete` / `file_move` / `file_copy` 拒绝操作 workspace 根目录
 - `file_rename` / `file_batchRename` 拒绝含路径分隔符的改名结果
 - 签名密码经环境变量中转，不出现在进程命令行
