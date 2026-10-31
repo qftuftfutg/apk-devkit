@@ -5,7 +5,7 @@
 
 ---
 
-## 在手机 / Linux 上先验证（可选，但强烈建议）
+## 在非 Windows 环境做有限源码诊断（非支持平台）
 
 项目发布时锁死 `os: ["win32"]`，但**纯 JS 内核本身是跨平台的**。
 如果你想在手机（Linux/ARM，如 DSH 手机版）或 Mac 上先把代码跑通再发布，
@@ -136,8 +136,8 @@ count-tools: 37（历史快照；当前 main 分支未重新运行）
 
 | 类别 | 模块 | 工具数 | 手机上 |
 |---|---|---|---|
-| 纯 Node（不调外部工具） | file / hash / diff / zip | **19** | ✅ 稳定可用 |
-| 懒加载原生依赖 | img | 2 | ⚠️ 模块可注册；调用依赖 sharp。Android/Termux 使用 Bionic，未列入 sharp 官方预编译平台清单，不能将通用 Linux ARM 预编译包视为可直接用于 Termux |
+| 纯 Node（不调外部工具） | file / hash / diff / zip | **19** | 历史 Linux 快照记录过调用；不构成当前支持承诺 |
+| 懒加载原生依赖 | img | 2 | ⚠️ 模块可注册；调用依赖 sharp。Android/Termux 使用 Bionic，未列入 sharp 官方预编译平台清单；是否能通过自定义构建运行未验证 |
 | 依赖外部 jar / exe | apk / apkedit / sign / dex / dex2jar | 17 | ⚠️ 抛 `EPLATFORM` |
 
 > **19 而不是 21**：`img` 虽不调 exe/jar（不会撞 `EPLATFORM`），
