@@ -59,5 +59,25 @@ test('quotes safe arguments for cmd.exe and rejects shell metacharacters', () =>
   assert.equal(quoteCmdArg('C:\\Program Files\\Android\\apktool.bat'), '"C:\\Program Files\\Android\\apktool.bat"');
   assert.throws(() => quoteCmdArg('name&calc.exe'), { code: 'EUNSAFECMDARG' });
   assert.throws(() => quoteCmdArg('%TEMP%\\payload.apk'), { code: 'EUNSAFECMDARG' });
-  assert.throws(() => quoteCmdArg('line1\\nline2'), { code: 'EUNSAFECMDARG' });
+  assert.throws(() => quoteCmdArg('line1\nline2'), { code: 'EUNSAFECMDARG' });
+});
+
+test('exec safely invokes a batch file with a spaced argument', async t => {
+  if (process.platform !== 'win32') {
+    t.skip('Windows batch execution is platform-specific');
+    return;
+  }
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const { exec } = require('../lib/runner');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'apk-devkit-cmd-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const script = path.join(dir, 'batch tool.cmd');
+  fs.writeFileSync(script, '@echo off\r\necho %~1\r\n', 'utf8');
+  const result = await exec('"' + script + '"', ['hello world'], {
+    cwd: dir,
+    shell: true,
+    timeoutMs: 10000,
+  });
+  assert.match(result.stdout, /hello world/);
 });
