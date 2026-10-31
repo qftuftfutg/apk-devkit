@@ -33,6 +33,10 @@ async function handle(msg) {
       });
       return;
     }
+    if (method === 'ping') {
+      send({ jsonrpc: '2.0', id, result: {} });
+      return;
+    }
     if (method === 'tools/list') {
       send({ jsonrpc: '2.0', id, result: { tools: PUBLIC_TOOLS } });
       return;
