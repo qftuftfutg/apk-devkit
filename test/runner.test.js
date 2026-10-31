@@ -53,3 +53,11 @@ test('allows a symlink that resolves to another location inside workspace', t =>
   fs.symlinkSync(path.join(ws, 'real'), path.join(ws, 'alias'), process.platform === 'win32' ? 'junction' : 'dir');
   assert.equal(guard(ws, 'alias', 'new.txt'), path.join(ws, 'alias', 'new.txt'));
 });
+
+test('quotes safe arguments for cmd.exe and rejects shell metacharacters', () => {
+  const { quoteCmdArg } = require('../lib/runner');
+  assert.equal(quoteCmdArg('C:\\Program Files\\Android\\apktool.bat'), '"C:\\Program Files\\Android\\apktool.bat"');
+  assert.throws(() => quoteCmdArg('name&calc.exe'), { code: 'EUNSAFECMDARG' });
+  assert.throws(() => quoteCmdArg('%TEMP%\\payload.apk'), { code: 'EUNSAFECMDARG' });
+  assert.throws(() => quoteCmdArg('line1\\nline2'), { code: 'EUNSAFECMDARG' });
+});
