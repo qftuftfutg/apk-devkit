@@ -1,5 +1,12 @@
 # apk-devkit
 
+<p align="center">
+  <a href="https://afdian.com/a/123xiaole">
+    <img src="https://img.shields.io/badge/爱发电-支持作者-946CE6?style=for-the-badge" alt="爱发电赞助 / Sponsor on Afdian">
+  </a>
+</p>
+<p align="center"><strong>自愿支持项目维护 · Voluntarily support project maintenance</strong> · <a href="SPONSOR.md">赞助说明 / Sponsorship</a></p>
+
 **DeepSeek Harness（DSH）插件** —— 让 DSH 里的 AI 用自然语言直接对 APK 做解包、回编、签名、DEX 处理、资源与文件编辑，不用敲命令行。
 
 他把（`apktool` / `aapt2` / `apksigner` / `zipalign` / `baksmali` / `smali` / `d8` / `APKEditor`）包装成 AI 可调用的工具。
@@ -324,14 +331,6 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
   同一会话想并行做多件事时请留意。
 
 ---
-## ☕ 支持与赞助
-
-如果你觉得这个项目对你有帮助，欢迎请作者喝杯咖啡，你的支持是我持续更新的最大动力！
-
-👉 **[点击这里前往爱发电支持我](https://afdian.com/a/123xiaole)**
-
----
-
 ## 十一、License
 
 MIT — 见 [LICENSE](./LICENSE)
