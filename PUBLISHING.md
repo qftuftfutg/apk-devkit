@@ -1,7 +1,7 @@
 # 发布清单：让 DSH 能从插件库拉取
 
 本文档把"发布上去 → DSH 能拉到"拆成可执行步骤。
-两条路径都走通，用户就能**任选其一**安装。
+本文描述 GitHub bundle 与 npm 两种安装路径。是否能安装并正常运行，仍取决于 DSH 版本、Node 版本、插件依赖和外部工具环境；发布流程不等于兼容性验证。
 
 ---
 
@@ -11,7 +11,7 @@
 如果你想在手机（Linux/ARM，如 DSH 手机版）或 Mac 上先把代码跑通再发布，
 按本节操作。
 
-> 本节每条命令都在 Linux 实机跑过，输出照实抄录。
+> 本节包含历史 Linux 实机验证记录；本次文档审查未重新执行这些命令。Linux/Android 并非本项目支持运行平台，相关命令仅用于有限的源码/纯 Node 诊断。
 
 ---
 
@@ -46,7 +46,7 @@ npm config get global        # 返回 true 就要加 --global=false
 
 ---
 
-### 两种解法（任选其一，均实测输出 37）
+### 两种解法（任选其一；下列终端输出属于历史验证记录）
 
 #### 路 A（推荐：不改动任何文件）
 
@@ -91,13 +91,9 @@ npm run count-tools
 
 ### 验证时能看到什么
 
-只要依赖装好，终端干净地输出**一行裸数字**：
+历史验证快照中，依赖装好后曾输出一行裸数字 `37`。当前 main 分支的 README 工具清单按 10 个模块静态合计为 **38 个工具**；本次文档审查没有在 Windows/Linux 运行时重新执行 `npm run count-tools`，因此请以目标提交上实际运行的 `npm run count-tools` 输出为准。不要把旧快照的 37 当作当前版本验收值。
 
-```
-37
-```
-
-> 不要期待 `[apk-devkit] loaded; registering 37 tools; workspace=...` ——
+> 历史版本日志曾出现 `[apk-devkit] loaded; registering 37 tools; workspace=...`；该数字不是当前 main 分支的验收标准。
 > 那行是 **`plugin.mjs` 第 91 行**打印的，只在 **DSH 真正挂载插件并启动**时出现
 > （见下文"发布后自检"）。`count-tools` 走 `orchestrator.js`，根本不加载 `plugin.mjs`。
 > 它也**不是** `server.js` 的日志 —— `server.js` 里 `[apk-devkit]` 出现 0 次。
@@ -111,7 +107,7 @@ function loadSharp() {
 }
 ```
 
-所以 `node_modules` 里**没有 sharp 也照样输出 37**。
+所以 `node_modules` 里**没有 sharp 也不会阻止 img 模块注册**。历史快照中的工具数量输出不代表当前 main 分支计数。
 只有真正调用 `img_convert` / `img_resize` 时才抛
 `ENOENT_TOOL: sharp 未安装，请执行 npm i sharp`。
 
@@ -119,7 +115,7 @@ function loadSharp() {
 
 ```
 node_modules: @emnapi @img adm-zip diff     ← 没有 sharp
-count-tools: 37
+count-tools: 37（历史快照；当前 main 分支未重新运行）
 ```
 
 依赖没装全时，stderr 会长这样。注意模块名**带 `.js`**
@@ -128,11 +124,11 @@ count-tools: 37
 ```
 [apk-devkit] 模块加载失败 diff.js: Cannot find module 'diff'
 [apk-devkit] 模块加载失败 zip.js: Cannot find module 'adm-zip'
-[apk-devkit] 2 个模块未加载，7 个可用
-31
+[apk-devkit] 2 个模块未加载（历史快照；模块数/工具数随提交变化）
+31（历史快照）
 ```
 
-**31 ≠ 代码有问题**。看 stderr 那行定位缺哪个包，补装 `npm install diff adm-zip` 即可。
+上述 31 是历史快照，不是当前预期值。看 stderr 定位缺失模块，补装相应依赖后，必须在当前提交重新运行 `npm run count-tools`。
 
 ---
 
@@ -142,7 +138,7 @@ count-tools: 37
 |---|---|---|---|
 | 纯 Node（不调外部工具） | file / hash / diff / zip | **19** | ✅ 稳定可用 |
 | 懒加载原生依赖 | img | 2 | ✅ 能注册；**调用时**需装好 sharp（ARM 下常无预编译包） |
-| 依赖外部 jar / exe | apk / apkedit / sign / dex | 16 | ⚠️ 抛 `EPLATFORM` |
+| 依赖外部 jar / exe | apk / apkedit / sign / dex / dex2jar | 17 | ⚠️ 抛 `EPLATFORM` |
 
 > **19 而不是 21**：`img` 虽不调 exe/jar（不会撞 `EPLATFORM`），
 > 但**调用时**硬依赖原生包 sharp，ARM 上大概率装不上，
@@ -151,8 +147,7 @@ count-tools: 37
 `EPLATFORM` 的 hint 已明确写"这是设计限制，不是 bug"，
 所以手机上看到它是**符合预期的**，不是故障。
 
-> 结论：手机验证能稳定覆盖 **19/37** 的实际执行，
-> 加上 **37/37** 的加载与清单生成 —— 足以证明内核在 Linux 下语法与依赖都没问题。
+> 结论边界：历史 Linux 验证记录只覆盖纯 Node 模块的部分调用路径；它不能证明 Windows-only 外部工具可用，也不能证明插件在 Android/Termux 上受支持。当前 main 分支静态工具清单为 38 项，实际可用数量应以目标环境逐项执行测试为准。
 
 ---
 
@@ -274,14 +269,7 @@ git remote add origin https://github.com/qftuftfutg/apk-devkit.git
 git push -u origin main
 ```
 
-2. 在 GitHub 仓库页 **Settings → Topics** 加 topic：
-
-```
-dsh-plugin
-```
-
-> 这一步是**索引的关键**。dsh-plugin.org 按该 topic 自动抓取仓库，
-> 人工审核通过后标 ✅verified，出现在 DSH「设置 → 插件市场」。
+2. 如需提交到第三方插件目录，请按该目录当时公开的投稿规则单独申请。`dsh-plugin` topic 只是 GitHub 元数据标签；本项目没有验证任何目录会自动抓取、审核或展示本仓库，也不能保证获得“verified”标记。DSH 官方 bundle 安装机制与第三方目录收录是两件不同的事。
 
 3. 打 release tag（可选但推荐，市场按 tag 取版本）：
 
@@ -316,20 +304,9 @@ dsh plugin --profile web add apk-devkit
 
 ---
 
-## 路径 C：AI 间接安装（不经审核）
+## 路径 C：由 AI 助手协助安装（需用户确认）
 
-DSH 的 `dsh-market` 会**解析 README 里的安装命令**自动执行。
-所以 README 第一章必须保留这三行原文（已保留）：
-
-```bat
-dsh plugin --profile web add ./apk-devkit
-dsh plugin --profile web add apk-devkit
-dsh plugin --profile web add github:qftuftfutg/apk-devkit
-```
-
-用户只需在 DSH 会话里说一句：
-
-> 帮我安装 apk-devkit 插件
+不要假定 DSH 会自动解析 README 并执行安装命令。本项目未验证这种自动化行为，也不应在没有用户确认的情况下安装第三方代码。可让 AI 助手解释安装命令，但实际安装仍由用户在受信任的终端中执行，并在安装前审查来源、依赖和权限。
 
 ---
 
@@ -353,8 +330,8 @@ dsh --profile web
 
 - `--dump-config` 无输出 → `dsh.bundle.patch` 没生效，检查 `cordis.patch.yml`
   是否在 `files` 里、路径是否为 `/cordis.patch.yml`
-- 启动日志应有 `[apk-devkit] loaded; registering 37 tools; workspace=...`
-- 数字不是 37 → 有模块加载失败，看紧随其后的"模块加载失败 X"行
+- 启动日志中的注册工具数量应与当前提交 `npm run count-tools` 的结果一致（当前 README 静态清单为 38 项，未在本次审查中运行验证）。
+- 数量不一致时，检查模块加载失败日志，并确认依赖是否完整。
 
 ---
 
