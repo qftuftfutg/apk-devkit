@@ -10,36 +10,46 @@ const MAX_TEXT_DIFF_BYTES = 2 * 1024 * 1024;
 const MAX_DIR_FILES = 20000;
 const MAX_DIR_TOTAL_BYTES = 2 * 1024 * 1024 * 1024;
 
-async function hashFile(abs) {
+async function hashFile(abs, maxBytes) {
   const hash = crypto.createHash('sha256');
   let size = 0;
   await new Promise((resolve, reject) => {
     const stream = fss.createReadStream(abs);
-    stream.on('data', chunk => { size += chunk.length; hash.update(chunk); });
+    stream.on('data', chunk => {
+      size += chunk.length;
+      if (size > maxBytes) {
+        stream.destroy(Object.assign(new Error('目录累计文件大小超过 2 GiB 上限'), { code: 'EDIFFLIMIT' }));
+        return;
+      }
+      hash.update(chunk);
+    });
     stream.once('error', reject);
     stream.once('end', resolve);
   });
   return { size, hash: hash.digest('hex') };
 }
 
-async function walk(absDir, base = '', state = { files: 0, bytes: 0 }) {
+async function walk(absDir, base = '', state = { files: 0, bytes: 0 }, workspace) {
   const out = [];
   const entries = await fs.readdir(absDir, { withFileTypes: true });
   for (const entry of entries) {
     const rel = path.join(base, entry.name);
     const abs = path.join(absDir, entry.name);
     if (entry.isDirectory()) {
-      out.push(...await walk(abs, rel, state));
+      guard(workspace, rel);\n      out.push(...await walk(abs, rel, state, workspace));
     } else if (entry.isFile()) {
       state.files++;
       if (state.files > MAX_DIR_FILES) {
         throw Object.assign(new Error(`目录文件数量超过上限（${MAX_DIR_FILES}）`), { code: 'EDIFFLIMIT' });
       }
-      const result = await hashFile(abs);
-      state.bytes += result.size;
+      guard(workspace, rel);
+      const stat = await fs.lstat(abs);
+      if (!stat.isFile()) continue;
+      state.bytes += stat.size;
       if (state.bytes > MAX_DIR_TOTAL_BYTES) {
         throw Object.assign(new Error('目录累计文件大小超过 2 GiB 上限'), { code: 'EDIFFLIMIT' });
       }
+      const result = await hashFile(abs, MAX_DIR_TOTAL_BYTES - (state.bytes - stat.size));
       out.push({ rel, size: result.size, hash: result.hash });
     }
     // Symlinks and junctions are intentionally not traversed.
@@ -82,7 +92,7 @@ module.exports = (ctx) => ({
     if (!fss.statSync(absA).isDirectory() || !fss.statSync(absB).isDirectory()) {
       throw new Error('目录对比目标必须是目录');
     }
-    const [listA, listB] = await Promise.all([walk(absA), walk(absB)]);
+    const [listA, listB] = await Promise.all([walk(absA, '', undefined, ctx.ws), walk(absB, '', undefined, ctx.ws)]);
     const mapA = new Map(listA.map(item => [item.rel, item]));
     const mapB = new Map(listB.map(item => [item.rel, item]));
     const onlyInA = [], onlyInB = [], changed = [];
