@@ -1,5 +1,7 @@
 # apk-devkit
 
+**简体中文** | [English](README.en.md)
+
 <p align="center">
   <a href="https://afdian.com/a/123xiaole">
     <img src="https://img.shields.io/badge/爱发电-支持作者-946CE6?style=for-the-badge" alt="爱发电赞助 / Sponsor on Afdian">
