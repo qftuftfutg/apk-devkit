@@ -132,7 +132,7 @@ npm i sharp                        # 需要图片模块时再单独装
 | `APK_KS_PASS` | — | 签名 keystore 密码（可选，通常由参数传入） |
 | `APK_KEY_PASS` | — | 签名私钥密码 |
 
-文件路径通过 `lib/runner.js#guard` 做词法路径与真实路径双重检查：拒绝 `../` 越界，并解析现存路径祖先以阻止 symlink/junction 指向 workspace 外部。ZIP 解压在写入前及写入前复核目标路径。该机制仍不是完整操作系统沙箱，无法消除检查与使用之间的 TOCTOU 竞态；不要让不可信本地进程同时修改 workspace。
+文件路径通过 `lib/runner.js#guard` 做词法路径与真实路径双重检查：拒绝 `../` 越界，并解析现存路径祖先以阻止 symlink/junction 指向 workspace 外部。ZIP 解压在全量预检阶段及每次写入前复核目标路径。该机制仍不是完整操作系统沙箱，无法消除检查与使用之间的 TOCTOU 竞态；不要让不可信本地进程同时修改 workspace。
 
 ---
 
