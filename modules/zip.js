@@ -116,20 +116,28 @@ function buildEntryIndex(zipFile) {
  * 落盘前二次校验最终绝对路径仍在 outAbs 内 —— 即便前面已校验过条目名，
  * 这里仍兜一道，因为路径是"条目名 + 输出目录"拼出来的。
  */
-function writeEntry(e, outAbs) {
+function resolveEntryTarget(e, outAbs, workspace) {
   const rel = safeEntryName(e.entryName, 'extract');
   const target = path.resolve(outAbs, rel);
   if (!target.startsWith(outAbs + path.sep) && target !== outAbs) {
     throw deny('EPATHESCAPE', `extract: 落盘路径越界，拒绝: ${e.entryName}`);
   }
+  // 必须再经过 workspace 的真实路径检查：outAbs 内可能预先存在一个
+  // 指向 workspace 外部的目录 symlink/junction。仅检查 ZIP 条目名不够。
+  guard(workspace, path.relative(workspace, target));
+  return { rel, target };
+}
+
+function writeEntry(e, outAbs, workspace) {
+  const { rel, target } = resolveEntryTarget(e, outAbs, workspace);
   if (e.isDirectory) {
     fs.mkdirSync(target, { recursive: true });
-    // 返回 rel 而非 null：显式请求目录条目时也要计入 extracted，
-    // 否则 requested 与 extracted 对不上（"报了 N 个实际 N-1 个"）
     return rel;
   }
   fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, e.getData());
+  // 防止父目录在预检后被替换为外部 symlink；写入前再次检查。
+  guard(workspace, path.relative(workspace, target));
+  fs.writeFileSync(target, e.getData(), { flag: 'w' });
   return rel;
 }
 
@@ -229,7 +237,7 @@ module.exports = (ctx) => ({
           bad.push(`${n}（${err.code || '非法'}: ${err.message}）`);
         }
       }
-      // 先全部解析再落盘：任一不合法就整体拒绝，不留半成品
+      // 先全部解析并检查目标路径，再落盘：任一条目或已有 symlink 越界，整体拒绝。
       if (bad.length) {
         throw Object.assign(
           deny('EPATHESCAPE',
@@ -238,9 +246,14 @@ module.exports = (ctx) => ({
           { badEntries: bad, hint: '先用 zip_list 查看 suspicious 字段确认，只挑可信条目解压' }
         );
       }
+      try {
+        for (const e of found) resolveEntryTarget(e, outAbs, ctx.ws);
+      } catch (err) {
+        throw Object.assign(deny('EPATHESCAPE', `解压目标路径不安全，已在写入前拒绝: ${err.message}`), { hint: '检查输出目录中是否存在指向 workspace 外部的符号链接或目录联接' });
+      }
       const done = [];
       for (const e of found) {
-        const rel = writeEntry(e, outAbs);
+        const rel = writeEntry(e, outAbs, ctx.ws);
         if (rel) done.push(rel);
       }
       // 完整性核对：报告实际落盘数，避免"报了 N 个实际 < N"的静默不完整
@@ -253,12 +266,13 @@ module.exports = (ctx) => ({
       };
     }
 
-    // 整体解压：全量校验（extractAllTo 不校验条目名）
+    // 整体解压：全量校验所有条目名、ZIP 符号链接和实际落盘路径。
     const bad = [];
     for (const e of allEntries) {
-      try { safeEntryName(e.entryName, 'extract'); }
-      catch (err) { bad.push(e.entryName); continue; }
-      if (isSymlinkEntry(e)) bad.push(`${e.entryName}（符号链接）`);
+      try {
+        if (isSymlinkEntry(e)) throw deny('EPATHESCAPE', '符号链接条目');
+        resolveEntryTarget(e, outAbs, ctx.ws);
+      } catch (err) { bad.push(`${e.entryName}（${err.message}）`); }
     }
     if (bad.length) {
       throw Object.assign(
@@ -268,9 +282,14 @@ module.exports = (ctx) => ({
         { badEntries: bad, hint: '先用 zip_list 查看 suspicious 字段确认，或只解压可信的 entries' }
       );
     }
-    // 整体解压仍需先全量校验（extractAllTo 不校验条目名）
-    z.extractAllTo(outAbs, true);
-    return { extractedTo: out, count: all.length };
+    // 不使用 extractAllTo：逐条写入并在每次写入前复核真实路径，
+    // 避免输出目录中预先存在的 symlink/junction 将文件导向 workspace 外。
+    const done = [];
+    for (const e of allEntries) {
+      const rel = writeEntry(e, outAbs, ctx.ws);
+      if (rel) done.push(rel);
+    }
+    return { extractedTo: out, count: done.length, entries: done };
   },
   async add({ zip, entries } = {}) {
     const { abs, zip: z } = load(ctx.ws, zip);
