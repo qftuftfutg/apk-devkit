@@ -292,6 +292,7 @@ MCP 协议版本 `2024-11-05`，实现 `initialize` / `tools/list` / `tools/call
 - `file_delete` / `file_move` / `file_copy` 拒绝操作 workspace 根目录
 - `file_rename` / `file_batchRename` 拒绝含路径分隔符的改名结果
 - 签名密码经环境变量中转，不出现在进程命令行
+- Windows `.bat/.cmd` 调用会为参数加引号，并拒绝 `& | < > ^ ( ) % !`、引号和换行等 cmd 元字符，避免把文件名/参数解释为 shell 命令；遇到拒绝时请改名或改用 `.exe/.jar`
 - `server.js` 仅实现白名单方法（initialize / ping / tools/list / tools/call）
 - 子进程并发上限 2，防止 apktool / d8 吃满内存
 
