@@ -1,7 +1,7 @@
 # 发布清单：让 DSH 能从插件库拉取
 
 本文档把"发布上去 → DSH 能拉到"拆成可执行步骤。
-本文描述 GitHub bundle 与 npm 两种安装路径。是否能安装并正常运行，仍取决于 DSH 版本、Node 版本、插件依赖和外部工具环境；发布流程不等于兼容性验证。
+本文描述 GitHub bundle 与 npm 两种安装路径。是否能安装并正常运行，仍取决于 DSH 版本、Node 版本、插件依赖和外部工具环境；发布流程不等于兼容性验证。当前 `package.json` 声明 Node.js `>=18`，但没有声明 `engines.dsh` 版本范围；这只是包自身的 Node 元数据，不等于 DSH 主程序在 Node 18 上受支持。发布前应在实际目标 DSH 版本测试，并按 DSH 官方 bundle 文档补充经过验证的 `engines.dsh` 范围。
 
 ---
 
@@ -259,7 +259,7 @@ npm pack --dry-run
 
 ---
 
-## 路径 A：官方插件库（用户点一下装好）
+## 路径 A：GitHub Bundle 安装（由用户执行）
 
 1. 推到 GitHub：
 
@@ -271,7 +271,7 @@ git push -u origin main
 
 2. 如需提交到第三方插件目录，请按该目录当时公开的投稿规则单独申请。`dsh-plugin` topic 只是 GitHub 元数据标签；本项目没有验证任何目录会自动抓取、审核或展示本仓库，也不能保证获得“verified”标记。DSH 官方 bundle 安装机制与第三方目录收录是两件不同的事。
 
-3. 打 release tag（可选但推荐，市场按 tag 取版本）：
+3. 打 release tag（可选，用于标记源码版本；tag 本身不代表已被任何插件目录收录）：
 
 ```bat
 git tag v0.1.0 && git push origin v0.1.0
