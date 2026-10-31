@@ -112,7 +112,7 @@ apkeditor    二进制资源（ARSC/XML）编辑，不依赖 aapt2
 
 ### 可选
 
-`sharp` —— 图片模块（`img_convert` / `img_resize`）依赖它。该依赖在 `package.json` 中标为 optional；下面的安装命令主动省略可选依赖，因此默认不安装 sharp。不要把这一点解释成“Windows 没有预编译包”：sharp 官方安装文档列有 Windows x64 预编译包；本项目尚未在所有 Windows 架构上逐一验证。
+`sharp` —— 图片模块（`img_convert` / `img_resize`）依赖它。该依赖在 `package.json` 中标为 optional；下面的安装命令主动省略可选依赖，因此默认不安装 sharp。不要把这一点解释成“Windows 没有预编译包”：sharp 官方安装文档列有 Windows x64 预编译包；本项目尚未在所有 Windows 架构上逐一验证。可参阅 [sharp 官方平台与预编译二进制说明](https://sharp.pixelplumbing.com/install/)；官方清单不等于本项目在每种环境中的实测结果。
 
 ```bash
 npm install --omit=optional        # 跳过 sharp
