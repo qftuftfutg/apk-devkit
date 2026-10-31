@@ -160,8 +160,8 @@ This is not a complete operating-system sandbox and cannot eliminate TOCTOU (tim
 | | | `dex_assemble` | smali → DEX |
 | | | `dex_jar2dex` | JAR → DEX |
 | dex2jar | 1 | `dex2jar_jar` | DEX → JAR (d2j-dex2jar) |
-| diff | 2 | `diff_files` | Compare text files line by line |
-| | | `diff_dirs` | Recursively compare directories |
+| diff | 2 | `diff_files` | Compare text files line by line (2 MiB per file) |
+| | | `diff_dirs` | Recursively compare directories (streaming SHA-256; up to 20,000 files and 2 GiB per side) |
 | zip | 4 | `zip_list` / `zip_extract` / `zip_add` / `zip_remove` | Inspect and modify archives |
 | file | 12 | `file_read` / `file_write` | Read/write text (automatically strips BOM) |
 | | | `file_list` | List directories (the AI's “eyes” for locating files) |
