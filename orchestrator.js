@@ -6,6 +6,9 @@ class Session {
   constructor(ws) {
     this.ws = path.resolve(ws);
     if (!fs.existsSync(this.ws)) fs.mkdirSync(this.ws, { recursive: true });
+    // 固定 workspace 的真实根路径，避免 workspace 本身是 symlink/junction 时
+    // 词法根路径与文件系统实际根路径不一致。
+    this.ws = fs.realpathSync.native ? fs.realpathSync.native(this.ws) : fs.realpathSync(this.ws);
     this.ctx = { ws: this.ws, log: msg => process.stderr.write(msg) };
     this.modules = {};
   }
