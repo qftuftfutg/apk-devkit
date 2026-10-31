@@ -36,7 +36,8 @@ async function walk(absDir, base = '', state = { files: 0, bytes: 0 }, workspace
     const rel = path.join(base, entry.name);
     const abs = path.join(absDir, entry.name);
     if (entry.isDirectory()) {
-      guard(workspace, rel);\n      out.push(...await walk(abs, rel, state, workspace));
+      guard(workspace, rel);
+      out.push(...await walk(abs, rel, state, workspace));
     } else if (entry.isFile()) {
       state.files++;
       if (state.files > MAX_DIR_FILES) {
