@@ -11,7 +11,7 @@
 如果你想在手机（Linux/ARM，如 DSH 手机版）或 Mac 上先把代码跑通再发布，
 按本节操作。
 
-> 本节包含历史 Linux 实机验证记录；本次文档审查未重新执行这些命令。Linux/Android 并非本项目支持运行平台，相关命令仅用于有限的源码/纯 Node 诊断。
+> 本节包含历史 Linux 实机验证记录；原记录未保留足以复现的完整提交号、Node/npm 版本与系统镜像信息，本次文档审查也未重新执行这些命令。Linux/Android 并非本项目支持运行平台，相关命令仅用于有限的源码/纯 Node 诊断。
 
 ---
 
@@ -137,12 +137,11 @@ count-tools: 37（历史快照；当前 main 分支未重新运行）
 | 类别 | 模块 | 工具数 | 手机上 |
 |---|---|---|---|
 | 纯 Node（不调外部工具） | file / hash / diff / zip | **19** | ✅ 稳定可用 |
-| 懒加载原生依赖 | img | 2 | ✅ 能注册；**调用时**需装好 sharp（ARM 下常无预编译包） |
+| 懒加载原生依赖 | img | 2 | ⚠️ 模块可注册；调用依赖 sharp。Android/Termux 使用 Bionic，未列入 sharp 官方预编译平台清单，不能将通用 Linux ARM 预编译包视为可直接用于 Termux |
 | 依赖外部 jar / exe | apk / apkedit / sign / dex / dex2jar | 17 | ⚠️ 抛 `EPLATFORM` |
 
 > **19 而不是 21**：`img` 虽不调 exe/jar（不会撞 `EPLATFORM`），
-> 但**调用时**硬依赖原生包 sharp，ARM 上大概率装不上，
-> 所以算进"稳可用的纯 Node"是虚的。
+> 但**调用时**硬依赖 sharp。Android/Termux 使用 Bionic，与 sharp 官方列出的 Linux glibc/musl 预编译目标不同；本项目未验证 Termux 构建或运行，故不把它计入可确认可用的纯 Node 工具数。
 
 `EPLATFORM` 的 hint 已明确写"这是设计限制，不是 bug"，
 所以手机上看到它是**符合预期的**，不是故障。
